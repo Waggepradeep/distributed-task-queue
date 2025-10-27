@@ -191,8 +191,33 @@ Where to look in the repo
 
 If anything in this README is unclear or you want a new helper (e.g. POST endpoint, auto-discovery of psql path, consolidated run script), tell me which item and I'll add it.
 
-if use made any change in the code the go the powershell then run this command to build new code for the changes you made
+
+## 📸 Actual Terminal Output
+
+Here are the actual screenshots from running the distributed task queue:
+
+### Coordinator Starting
+![Coordinator Output](images/coordinator-startup.png)
+
+### Single Task Processing
+![Task Processing](images/single-task-output-and-also-mulitple-task-output.png)
+
+### Worker Execution
+![Worker Output](images/worker-execution.png)
+
+---
+
+## 🔨 Rebuilding After Code Changes
+
+If you made any changes in the code, go to PowerShell and run these commands to build new code for the changes you made:
+
+```powershell
+# Clean previous build
+Remove-Item -Recurse -Force .\build
+
+# Configure and build
+cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# Build the project
+cmake --build build
 ```
-->Remove-Item -Recurse -Force .\build
-->cmake -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-->cmake --build build
