@@ -1,0 +1,39 @@
+Third-party libraries and tools used by this project
+---------------------------------------------------
+
+This file lists the main third-party components the project depends on, why they are used, and short install/entry notes. Keep this file with the submission so reviewers can quickly see and reproduce the environment.
+
+1) Poco C++ Libraries
+	- Modules used: Foundation, Net, JSON, Data, DataPostgreSQL (Poco::Data::PostgreSQL)
+	- Purpose: HTTP server/client, JSON handling, and DB access via the Poco Data API.
+	- Typical install (Windows, vcpkg):
+		 vcpkg install poco
+	  or ensure the packages are available in your vcpkg triplet / CMake toolchain.
+	- License: Boost Software License / Apache (see Poco project site)
+
+2) PostgreSQL client libraries / psql
+	- libpq: client library used by Poco's PostgreSQL connector under the hood.
+	- psql: command-line client used by provided scripts (scripts/seed_tasks.ps1).
+	- Install (Windows): use PostgreSQL installer or add psql/libpq via a native package manager; vcpkg provides libpq for linking.
+	- Note: By default the project targets PostgreSQL on port 5432.
+
+3) (Optional) YugabyteDB (YSQL)
+	- YSQL is Postgres-compatible and can be substituted for PostgreSQL in most cases.
+	- Yugabyte's default YSQL port: 5433. Client tool is `ysqlsh` (psql can connect if pointed to the right port/libpq).
+	- Installation: Yugabyte provides single-node dev distributions and Docker images; this is optional and may require more resources than a simple PostgreSQL install.
+
+4) vcpkg (recommended for Windows builds)
+	- Purpose: install Poco and libpq and make them available to CMake via toolchain file.
+	- Quick steps:
+		 git clone https://github.com/microsoft/vcpkg.git
+		 .\vcpkg\bootstrap-vcpkg.bat
+		 .\vcpkg\vcpkg.exe install poco libpq
+
+Why include this file
+ - Provides a short, reviewer-friendly list of dependencies and how to install them locally.
+ - Documents optional Yugabyte/YSQL substitution and the reasons it was not used by default in the submission (installation/time/resources).
+
+Suggested additions (optional)
+ - Pin exact versions used (Poco version, libpq/postgres version) if you want reproducible grading.
+ - Add direct links to license texts if required by your course or institution.
+
