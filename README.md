@@ -141,7 +141,8 @@ What was changed during migration:
 	- Updated PowerShell scripts in `scripts/seed_tasks.ps1`
 
 2) Database Setup
-	- YugabyteDB running via Docker: `docker run -d --name yugabytedb -p7000:7000 -p9000:9000 -p5433:5433 yugabytedb/yugabyte:latest`
+	- YugabyteDB running via Docker (YSQL enabled and bound):
+	  `docker run -d --name yugabytedb -p 7000:7000 -p 9000:9000 -p 5433:5433 yugabytedb/yugabyte:latest yugabyted start --daemon=false --ui=true --tserver_flags="enable_ysql=true,pgsql_proxy_bind_address=0.0.0.0:5433"`
 	- Database created: `distributed_task_queue`
 	- Schema applied: `tasks` and `workers` tables with proper indexes
 
@@ -169,11 +170,11 @@ Benefits of YugabyteDB:
 Quick Start with YugabyteDB:
 ```powershell
 # Start YugabyteDB (if not already running)
-docker run -d --name yugabytedb -p7000:7000 -p9000:9000 -p5433:5433 yugabytedb/yugabyte:latest
+docker run -d --name yugabytedb -p 7000:7000 -p 9000:9000 -p 5433:5433 yugabytedb/yugabyte:latest yugabyted start --daemon=false --ui=true --tserver_flags="enable_ysql=true,pgsql_proxy_bind_address=0.0.0.0:5433"
 
 # Create database and schema
 docker exec -it yugabytedb ysqlsh -U yugabyte -c "CREATE DATABASE distributed_task_queue;"
-docker exec -it yugabytedb ysqlsh -U yugabyte -d distributed_task_queue -c "$(Get-Content sql/schema.sql)"
+Get-Content -Raw .\sql\schema.sql | docker exec -i yugabytedb ysqlsh -U yugabyte -d distributed_task_queue
 
 # Start coordinator
 .\build\coordinator\Debug\coordinator.exe
@@ -181,6 +182,29 @@ docker exec -it yugabytedb ysqlsh -U yugabyte -d distributed_task_queue -c "$(Ge
 # Seed tasks and start workers
 .\scripts\seed_tasks.ps1 -Count 10
 .\scripts\run_workers.ps1 -Count 5
+```
+
+PowerShell multiline (optional):
+```powershell
+docker run -d `
+  --name yugabytedb `
+  -p 7000:7000 `
+  -p 9000:9000 `
+  -p 5433:5433 `
+  yugabytedb/yugabyte:latest `
+  yugabyted start --daemon=false --ui=true --tserver_flags="enable_ysql=true,pgsql_proxy_bind_address=0.0.0.0:5433"
+```
+
+Troubleshooting (YSQL)
+- If `ysqlsh` reports connection refused on port 5433, recreate the container ensuring YSQL is enabled and bound:
+  `docker rm -f yugabytedb` then start with `--tserver_flags="enable_ysql=true,pgsql_proxy_bind_address=0.0.0.0:5433"`.
+- Give YSQL 5–10 seconds after container start before running `CREATE DATABASE`.
+- Prefer piping the schema file as shown to avoid PowerShell quoting issues.
+
+Cleanup
+```powershell
+docker stop yugabytedb
+docker rm yugabytedb
 ```
 
 Where to look in the repo
